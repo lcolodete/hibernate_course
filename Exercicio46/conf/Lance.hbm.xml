@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="exercicio46.lance.Lance" table="LANCE">
+			
+      <id name="id" column="ID"> 
+         <generator class="sequence">
+            <param name="sequence">SEQ_LANCE</param>
+         </generator>
+      </id>
+		
+      <property name="valor" 
+                column="VALOR"
+                type="double"
+                not-null="true"
+                access="field"/>
+      
+      <property name="dataCriacao"
+                column="DATA_CRIACAO"
+                type="date"
+                not-null="true"
+                access="field"/>
+
+      <many-to-one
+                name="produto"
+                column="PRODUTO_ID"
+                class="exercicio46.produto.Produto"
+                not-null="true"/>
+
+   </class>
+   
+    <query name="Lance.buscaUmLanceComProduto">
+        <![CDATA[from Lance l left outer join fetch l.produto where l.id = ?]]>
+    </query>
+    
+    <query name="Lance.recuperaLances">
+        <![CDATA[from Lance order by id]]>
+    </query>    
+    
+</hibernate-mapping>
+
+
+	

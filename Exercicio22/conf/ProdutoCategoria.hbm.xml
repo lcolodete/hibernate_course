@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio22.prodcat.ProdutoCategoria" 
+   	       table="PRODUTO_CATEGORIA">
+
+      	<composite-id name="id" 
+      	              class="exercicio22.prodcat.IdProdutoCategoria"> 
+
+         	<key-property    name="idProduto"     column="ID_PRODUTO"/>
+         	<key-property    name="idCategoria"   column="ID_CATEGORIA"/> 
+
+      	</composite-id>
+
+      	<many-to-one name="produto" 
+                     class="exercicio22.produto.Produto"
+                     insert="false" 
+                     update="false">
+
+         	<column name="ID_PRODUTO"/>
+
+      	</many-to-one>
+
+      	<!--
+            update, insert (opcionais - default=true) especificam se as 
+            colunas mapeadas devem ou não ser incluídas em comandos SQL
+            UPDATE e/ou INSERT.  Ao se  designar ambas as  propriedades 
+            para  false  se  permite  a  definição  de  uma  associação 
+            "derivada"  cujo  valor é  inicializado a  partir de alguma 
+            outra propriedade mapeada para a mesma coluna.
+      	-->
+
+      	<many-to-one name="categoria" 
+                     class="exercicio22.categoria.Categoria"
+                     insert="false" 
+                     update="false">
+
+         	<column name="ID_CATEGORIA"/>
+
+      	</many-to-one>
+
+   	</class>	
+</hibernate-mapping>

@@ -1,0 +1,16 @@
+O Segundo Nivel de Cache
+========================
+
+
+VER: Documentation.html nesta mesma pasta.
+
+Sempre que um  objeto é passado para os  métodos save(), update()  ou
+saveOrUpdate() e sempre que um objeto é recuperado utilizando load(),
+get(), list(),  iterate() ou scroll(), este  objeto é  adicionado  ao 
+cache interno da sessão.
+
+Observe que após fazer uma  busca de todos os  clientes, se tentarmos 
+alterar os dados de um cliente não haverá uma busca no banco de dados 
+para  recuperar o  cliente  que  será  alterado.  Por  outro lado  se 
+mandarmos o programa efetuar a alteração ocorrerá um erro uma vez que 
+o cache configurado é do tipo read-only.

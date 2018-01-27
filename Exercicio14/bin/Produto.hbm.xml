@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio14.produto.Produto" table="PRODUTO">
+			
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_PRODUTO</param>
+         	</generator>
+      	</id>
+		
+      	<property name="nome" 
+                  type="string"
+                  column="NOME"
+                  not-null="true"/>
+      
+       	<property name="descricao" 
+                  type="string"
+                  column="DESCRICAO"
+                  not-null="true"/>
+                
+      	<property name="lanceMinimo" 
+                  type="double"
+                  column="LANCE_MINIMO"
+                  not-null="true"/>
+                
+      	<property name="dataCadastro" 
+                  type="date"
+                  column="DATA_CADASTRO"
+                  not-null="true"/>
+
+      	<property name="dataVenda" 
+                  type="date"
+                  column="DATA_VENDA"/>
+<!-- 
+      	<set name="lances" 
+             inverse="true"
+             cascade="save-update"
+             order-by="id asc">
+	  
+	  	  	<key column="PRODUTO_ID"/>
+	  	   	<one-to-many class="exercicio14.lance.Lance"/>
+	  	</set>
+-->
+      	<set name="lances" 
+             cascade="save-update"
+             order-by="id asc">
+	  
+	  	  	<key column="PRODUTO_ID"/>
+	  	   	<one-to-many class="exercicio14.lance.Lance"/>
+	  	</set>
+
+      	<!-- 
+      
+      	A expressão  contida no  atributo  order-by é um fragmento  da
+      	cláusula SQL  Order by.  Este atributo pode ser  utilizado nos
+      	elementos bag, set ou map para ordenar as coleções.
+      
+      	O  atributo  cascade  determina  que  um  novo  Lance deve ser 
+      	persistido  (i.é,  salvo  no  banco  de  dados)  se  ele   for 
+      	referenciado por um Produto persistente. O atributo cascade  é
+      	direcional: ele se aplica a apenas um lado da associação.  Ele
+      	também  poderia  ser  adicionado à  associação  muitos-para-um 
+      	declarada no  mapeamento de Lance, no  entanto isto não  faria 
+      	sentido uma vez que os Lances são criados após os Produtos.
+      
+      	O mapeamento de coluna definido pelo elemento (key) representa
+      	uma  chave estrangeira  na tabela LANCE.  Note que esta  mesma 
+      	chave estrangeira foi especificada no mapeamento da associação
+      	muitos-para-um em Lance.hbm.xml. 
+
+      	Agora existem duas associações unidirecionais mapeadas para  a
+      	mesma chave estrangeira.  O atributo inverse diz ao  Hibernate
+      	que  a  coleção   (Set)  é  um   espelhamento  da   associação 
+      	muitos-para-um  do  outro  lado.  Sem  o  atributo  inverse, o 
+      	Hibernate  executaria  dois  comandos  SQL  diferentes,  ambos 
+      	atualizando a  mesma  coluna de  chave  estrangeira,  quando a 
+      	associação  entre   duas  instâncias  fosse  manipulada   pela 
+      	implementação  do   método  adicionarLance(lance)  da   classe 
+      	ProdutoDAO:
+      
+      	- o primeiro  comando  SQL efetuaria um INSERT na tabela LANCE 
+      	  em  função do  atributo  cascade="save-update"  especificado 
+      	  para  a  propriedade  lances  de  Produto.  Quando um objeto 
+      	  transiente    lance   é   referenciado    por   um    objeto
+      	  persistente produto, o lance é persistido no banco de dados. 
+       
+      	- e o segundo comando SQL efetuaria um UPDATE na tabela LANCE,
+      	  em função da propriedade produto de Lance ter sido designada
+      	  para o produto corrente.  Acrescentando o atributo  inverse,
+      	  apenas o INSERT irá ocorrer.
+      
+      	-->
+
+   	</class>	
+</hibernate-mapping>

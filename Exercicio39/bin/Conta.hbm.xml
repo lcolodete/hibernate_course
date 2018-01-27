@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio39.conta.Conta" table="CONTA">
+			
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_CONTA</param>
+         	</generator>
+      	</id>
+		
+      	<property name="dataAbertura" 
+                  column="DATA_ABERTURA"
+                  type="date"
+                  not-null="true"/>
+
+      	<set name="cccs" 
+             order-by="ID_CONTA, ID_CLIENTE, ID_CARTAO">
+
+<!--       inverse="true" e 
+           cascade="save-update" 
+           
+           não são necessários em função da forma como uma  ocorrência
+           de ClienteContaCartao é salva e pelo fato de uma  conta não
+           poder ser removida caso ela esteja associada a uma ou  mais
+           ocorrências de ClienteContaCartao.
+-->
+           
+         	<key column="ID_CONTA" />
+         	<one-to-many class="exercicio39.clienteContaCartao.ClienteContaCartao" />
+
+      	</set>
+      
+   	</class>	
+</hibernate-mapping>

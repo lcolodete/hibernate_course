@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="exercicio05.Cliente" 
+    	   table="CLIENTE" 
+    	   dynamic-insert="true"
+       	   dynamic-update="true">
+
+		<id name="numero" column="NUMERO"> 
+        	<generator class="sequence">
+            	<param name="sequence">SEQ_CLIENTE</param>
+         	</generator>
+      	</id>
+		
+      	<property name="nome" 
+                  column="NOME"
+                  type="string"
+                  not-null="true"/>
+
+      	<property name="salario"/>
+      
+   	</class>	
+</hibernate-mapping>

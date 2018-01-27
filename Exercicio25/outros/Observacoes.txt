@@ -1,0 +1,27 @@
+Esta abordagem surgiu com o Hibernate 3.0
+
+O código utilizado nos exercícios 24, 25 e 26 é rigorosamente
+o mesmo.
+
+Exercício 24 (Tabela por hierarquia de classe)
+============
+
+Tabela a ser criada: 
+- Pagamento
+
+É utilizado o elemento <subclass> em Pagamento.hbm.xml.
+
+
+Exercício 25 (Tabela por classe concreta)
+============
+
+Tabelas a serem criadas: 
+- Cartao
+- Conta
+
+É utilizado o elemento <union-subclass> em Pagamento.hbm.xml.
+
+Caso um pagamento seja recuperado sem se saber se o pagamento
+foi  efetuado em Cartao ou com  Conta, o Hibernate utiliza  a 
+cláusula UNION da linguagem SQL para recuperar os dados.
+

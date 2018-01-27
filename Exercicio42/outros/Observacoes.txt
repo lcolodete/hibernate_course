@@ -1,0 +1,10 @@
+Veja os arquivos Principal.java e ProdutoDAO.
+=============================================
+
+
+Este exercício tem 3 novidades:
+
+- uso de iterate() em vez de list()
+- como recuperar o produto com lance máximo para uma determinada descrição (HQL)
+- como recuperar um produto pelo id com Criteria.
+

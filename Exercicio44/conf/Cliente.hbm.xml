@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio44.cliente.Cliente" table="CLIENTE">
+
+      	<id name="numero" column="NUMERO"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_CLIENTE</param>
+         	</generator>
+      	</id>
+		
+      	<property name="nome" 
+                  column="NOME"
+                  type="string"
+                  not-null="true"/>
+      
+      	<property name="salario"/>
+      
+
+      	<set name="lances" 
+             order-by="ID asc">
+           
+<!--
+         ==> inverse="true" e 
+             cascade="save-update" não são necessários em função da forma como
+                                   um lance é cadastrado e não é possível 
+                                   remover um cliente que possua lances.
+                                   
+         ==> where="VALOR > 200" recuperaria apenas os lances com valores
+                                 superiores a 200.
+-->
+
+         	<key>
+            	<column name="ID_CLIENTE" not-null="true"/>
+         	</key>
+         	<one-to-many class="exercicio44.lance.Lance"/>
+
+      	</set>
+      
+   	</class>	
+</hibernate-mapping>

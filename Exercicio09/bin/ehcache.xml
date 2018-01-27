@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<ehcache>
+
+	<diskStore path="user.dir"/>
+
+    <!-- 
+         O  elemento  <diskStore>  acima  designa  o  caminho  para  o 
+         diretório onde os arquivos de cache serão criados: 
+
+         Se o caminho  informado for uma "Propriedade de Sistema Java"
+         o valor será substituído pelo  seu valor  na máquina  Virtual 
+         Java em execução.
+         
+         Para visualizar as propriedades de sistema execute:
+         
+         Properties properties = System.getProperties();
+
+    	 Enumeration e = properties.propertyNames();
+    	 while (e.hasMoreElements()) 
+    	 {	String nome = (String) e.nextElement();
+    		System.out.println(nome + ": " 
+    		     + properties.getProperty(nome));
+    	 }
+
+         As propriedades abaixo possuem os seguintes significados:
+
+         user.home - Diretório de uso pessoal do usuário.
+         user.dir - Diretório de trabalho corrente do usuário.
+         java.io.tmpdir - Caminho do arquivo temporário default 
+    -->
+
+	<defaultCache
+        maxElementsInMemory="10000"
+        eternal="false"
+        overflowToDisk="false"
+        timeToIdleSeconds="120"
+        timeToLiveSeconds="120"
+        diskPersistent="true"
+        diskExpiryThreadIntervalSeconds="120"
+        />
+        
+    <cache name="Cliente"
+       maxElementsInMemory="500"
+       eternal="false"
+       timeToIdleSeconds="60"
+       timeToLiveSeconds="180"
+       overflowToDisk="false"/>
+        
+    <!--
+        Configuração  de  cache  default.  Estas  configurações  serão 
+        aplicadas às regiões de  cache criadas  programaticamente pelo 
+        "CacheManager".
+
+        Os seguintes atributos são obrigatórios:
+
+        maxElementsInMemory            - Designa  o  número  máximo de 
+                                         objetos que serão  criados em 
+                                         memória.
+
+        eternal                        - Desina se  os  elementos  são 
+                                         eternos.   Se   eternos,   os 
+                                         timeouts  serão ignorados e o
+                                         elemento nunca expira.
+
+        overflowToDisk                 - Designa se os elementos podem 
+                                         sofrer  overflow para o disco 
+                                         quando  o  cache  em  memória 
+                                         alcança o limite especificado 
+                                         em maxElementsInMemory.
+
+        Os seguintes atributos são opcionais:
+
+        timeToIdleSeconds              - Designa o  tempo "idle"  para 
+                                         um    elemento   antes   dele 
+                                         expirar,  isto  é,   o  tempo 
+                                         máximo entre  acessos   antes 
+                                         do   elemento    expirar.   É 
+                                         utilizado    apenas    se   o
+                                         elemento não é eterno.
+                                         
+                                         Este  atributo é opcional.  O 
+                                         valor 0 (zero)  significa que 
+                                         o tempo "idle" é  infinito. O 
+                                         valor default é 0.
+
+        timeToLiveSeconds              - Designa o tempo de existência 
+                                         de  um  elemento  antes  dele 
+                                         expirar,  isto  é,  o   tempo 
+                                         máximo  entre  sua  criação e 
+                                         quando    ele    expira.    É 
+                                         utilizado  apenas   quando  o 
+                                         elemento não é eterno.
+                                         
+                                         Este  atributo é opcional.  O 
+                                         valor 0 (zero)  significa que 
+                                         o elemento pode permanecer no 
+                                         cache    indefinidamente.   O 
+                                         valor default é 0.
+
+        diskPersistent                 - Informa    se   o    conteúdo 
+                                         armazenado em  disco não deve 
+                                         ser apagado  entre  reinícios 
+                                         da   Máquina   Virtual  Java.
+                                         O valor default é false.
+        
+        diskExpiryThreadIntervalSeconds- A  quantidade   de   segundos 
+                                         entre as execuções da  thread 
+                                         que  verifica  se o  conteúdo 
+                                         armazenado no disco  expirou. 
+                                         O  valor  default  é  de  120 
+                                         segundos.
+        -->
+
+</ehcache>

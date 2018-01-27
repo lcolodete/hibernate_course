@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio30.Produto" table="PRODUTO">
+			
+      	<id name="id" column="ID">
+					<generator class="assigned" />
+      	</id>
+		
+      	<property name="nome" 
+                column="NOME"
+                type="string"
+                not-null="true"/>
+      
+      	<property name="descricao" 
+                column="DESCRICAO"
+                type="string"
+                not-null="true"/>
+                
+      	<property name="lanceMinimo" 
+                column="LANCE_MINIMO"
+                type="double"
+                not-null="true"/>
+                
+      	<property name="dataCadastro" 
+                column="DATA_CADASTRO"
+                type="date"
+                not-null="true"/>
+
+      	<property name="dataVenda" 
+                column="DATA_VENDA"
+                type="date"/>
+
+   	</class>	
+</hibernate-mapping>

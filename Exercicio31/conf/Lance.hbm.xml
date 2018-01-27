@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio31.lance.Lance" table="LANCE">
+			
+      	<composite-id name="id" class="exercicio31.lance.IdLance"> 
+         	<key-property    name="idProduto"   column="ID_PRODUTO"/> 
+         	<key-property    name="numeroLance" column="NUMERO_LANCE"/>
+      	</composite-id>
+		
+      	<property name="valor" 
+                  column="VALOR"
+                  type="double"
+                  not-null="true"
+                  access="field"/>
+      
+      	<property name="dataCriacao"
+                  column="DATA_CRIACAO"
+                  type="date"
+                  not-null="true"
+                  access="field"/>
+      
+      	<many-to-one name="produto" 
+                     class="exercicio31.produto.Produto"
+                     insert="false" 
+                     update="false">
+
+        	<column name="ID_PRODUTO"/>
+
+      	</many-to-one>
+
+   	</class>	
+</hibernate-mapping>

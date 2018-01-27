@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio39.clienteContaCartao.ClienteContaCartao" 
+           table="CLIENTE_CONTA_CARTAO">
+
+      	<id name="id" column="ID_CARTAO">
+         	<generator class="foreign">         <!-- <===== FOREIGN -->
+            	<param name="property">cartao</param>
+         	</generator>
+      	</id>
+
+      	<many-to-one name="cliente" 
+                     class="exercicio39.cliente.Cliente">
+         	<column name="ID_CLIENTE"/>
+      	</many-to-one>
+
+      	<many-to-one name="conta" 
+                     class="exercicio39.conta.Conta">
+         	<column name="ID_CONTA"/>
+      	</many-to-one>
+
+      	<one-to-one name="cartao" 
+                    class="exercicio39.cartao.Cartao"
+                    constrained="true" />
+      
+<!-- 
+          constrained="true"  faz  com  que  um proxy para  Cartao seja 
+          retornado  quando  uma  ocorrência  de  ClienteContaCartao  é 
+          acessada, e constrained="false" faz com que um objeto do tipo
+          Cartao   seja   recuperado   para   cada   objeto   do   tipo  
+          CLIENTE_CONTA_CARTAO.
+
+          constrained (opcional)  -   especifica que uma constraint  de  
+          chave estrangeira sobre a chave  primária da tabela  que está
+          sendo mapeada (CLIENTE_CONTA_CARTAO)  referencia a tabela  da
+          classe associada (CARTAO). 
+          
+          Mudar  constrained  para  "false"  e  verificar que para cada 
+          objeto do  tipo ClienteContaCartao  recuperado, é  recuperado 
+          também um objeto do tipo Cartao. 
+
+		  Veja  que  em  Cartao.hbm.xml não é possível utilizar a opção 
+		  constrained="true". 
+
+          Esta  opção  afeta  a ordem  na  quals salvamentos e deleções 
+          (save() e delete()) são realizados em cascata, e determina se
+          a  associação pode  sofrer  proxy  (também  é  utilizado pela 
+          ferramenta de exportação de esquema).
+
+          CREATE TABLE CLIENTE_CONTA_CARTAO
+          (ID_CARTAO        NUMBER(5)
+              CONSTRAINT CLIENTE_CONTA_CARTAO_PK
+              PRIMARY KEY
+              CONSTRAINT CLIENTE_CONTA_CARTAO_CARTAO_FK
+              REFERENCES CARTAO(ID),
+           ID_CLIENTE       NUMBER(5)
+              CONSTRAINT CLIENTE_CONTA_CARTAO_CLIENT_FK
+              REFERENCES CLIENTE(ID),
+           ID_CONTA         NUMBER(5)
+              CONSTRAINT CLIENTE_CONTA_CARTAO_CONTA_FK
+              REFERENCES CONTA(ID));
+-->      
+   	</class>	
+</hibernate-mapping>

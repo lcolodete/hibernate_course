@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio21.categoria.Categoria" table="CATEGORIA">
+			
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_CATEGORIA</param>
+         	</generator>
+      	</id>
+		
+      	<property name="nome" 
+                  column="NOME"
+                  type="string"
+                  not-null="true"/>
+      
+      	<many-to-one name="categoriaPai"
+                     class="exercicio21.categoria.Categoria" 
+                     column="ID_CATEGORIA_PAI"/>
+                
+      	<set name="subCategorias" 
+             table="CATEGORIA" 
+             order-by="ID asc">
+
+         	<key column="ID_CATEGORIA_PAI"/>
+         	<one-to-many class="exercicio21.categoria.Categoria"/>
+
+      	</set>
+
+      <!-- Uma associação muitos-para-muitos bidirecional. -->
+
+      	<set name="produtos" 
+             table="PRODUTO_CATEGORIA" 
+             inverse="true"
+             order-by="ID_PRODUTO asc">
+
+         	<key column="ID_CATEGORIA"/>
+         	<many-to-many column="ID_PRODUTO"
+                          class="exercicio21.produto.Produto"/>
+      	</set>
+
+      	<!-- 
+           No caso de uma associação muitos-para-muitos bidirecional,  o 
+           lado do inverse determina a deleção em cascata. Com o inverse
+           do lado de Categoria, se tentarmos remover uma  categoria  de
+           um  ou  mais   produtos  ocorrerá  um  erro  de   integridade 
+           referencial.  Por  outro lado, caso seja removido um  produto 
+           que  possua  uma  determinada   categoria,  todas  as  linhas 
+           referentes   a  este   produto  em  PRODUTO_CATEGORIA   serão 
+           removidas juntamente com o produto. 
+                      
+           Para poder remover a categoria com produtos, removendo  assim
+           as   linhas   referentes   a   esta   categoria   da   tabela 
+           PRODUTO_CATEGORIA,  seria  preciso  passar o atributo inverse 
+           para o arquivo de mapeamento da classe Produto. 
+      	-->
+
+   	</class>	
+</hibernate-mapping>
+
+
+	

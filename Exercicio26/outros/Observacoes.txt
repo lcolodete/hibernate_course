@@ -1,0 +1,45 @@
+Observe que foi preciso utilizar Query para recuperar os pagamentos uma
+vez que load e get não fazem buscas polimórficas.
+
+    // Os métodos load() e get() não fazem buscas polimórficas
+
+    Pagamento pagamento = (Pagamento)sessao
+    	.get(Pagamento.class, new Long(id));
+		    
+
+    // Faz busca polimorfica
+
+    Pagamento umPagamento = (Pagamento)sessao
+    	.createQuery("from exercicio26.Pagamento as p " + 
+    	             "where p.id = :id")
+        .setParameter("id", id)
+        .uniqueResult();
+
+		    
+    // Faz busca polimorfica
+
+    Pagamento pagamento = (Pagamento)sessao
+    	.createCriteria(Pagamento.class)
+        .add(Expression.eq("id", id))
+        .uniqueResult();
+
+Observe  também  que  foi  preciso,  nas  queries,  escrever  os  nomes 
+completamente qualificados das classes.
+
+***********************************************************************
+
+Esta abordagem é anterior ao Hibernate 3.0
+
+Note  que  em  nenhum  lugar  foi  mencionada  explicitamente a  classe 
+abstrata Pagamento.  Observe  também que as  propriedades de  Pagamento
+foram  especificadas  nos  arquivos  de  mapeamento  de  cada  uma  das 
+subclasses de Pagamento.
+
+A  desvanteagem  desta  abordagem  é  que o Hibernate não gera comandos 
+UNION (SQL) quando executa buscas polimórficas.
+
+
+
+
+
+

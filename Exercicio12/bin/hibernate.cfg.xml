@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+   	<session-factory>
+      	<property name="hibernate.connection.driver_class">
+         	oracle.jdbc.driver.OracleDriver
+      	</property>
+      	<property name="hibernate.connection.url">
+         	jdbc:oracle:thin:@sbd:1521:orcl
+      	</property>
+      	<property name="hibernate.connection.username">hibernate01</property>
+      	<property name="hibernate.connection.password">hibernate01</property>
+<!-- 
+	  Como configurar o hibernate para ele utilizar o pool de conexões
+	  do Tomcat:
+	  
+      	<property name="hibernate.connection.datasource">
+	  		java:/comp/env/jdbc/teste
+      	</property>
+-->
+
+
+<!--  
+	  Alternativamente é  possível configurar o  Hibernate para que  ele
+	  utilize um Pool de  conexões denominado C3P0.  Trata-se de um pool
+	  de conexões bem melhor do que o que vem embutido no Hibernate.
+-->
+
+<!--  	  
+	  O número mínimo de conexões JDBC que C3P0 manterá abertas, isto é, 
+      prontas para uso. 
+-->
+      	<property name="hibernate.c3p0.min_size">5</property>
+
+<!--  O número máximo de conexões no pool. Uma exceção será propagada em
+      tempo de execução se este número for superado. 
+-->
+      	<property name="hibernate.c3p0.max_size">20</property>
+
+<!--  O tempo que leva  para uma  conexão sem uso ser  removida do pool: 
+      neste caso, 10 minutos ou 600 segundos. 
+-->
+      	<property name="hibernate.c3p0.timeout">600</property>
+
+<!--  O número máximo de prepared statements que sofrerão cache. O cache 
+      de  PreparedStatements  é   essencial  para  se  obter  o   melhor 
+      desempenho com o Hibernate. 
+-->
+      	<property name="hibernate.c3p0.max_statements">50</property>
+
+<!--  O tempo em segundos que leva para que uma conexão fora de uso seja 
+      automaticamente validada. Neste caso, 6 minutos. 
+-->      
+
+      	<property name="hibernate.c3p0.idle_test_period">360</property>
+      	<property name="hibernate.dialect">org.hibernate.dialect.OracleDialect</property>
+      	<property name="show_sql">true</property>
+
+      	<mapping resource="Produto.hbm.xml"/>		
+   	</session-factory>
+</hibernate-configuration>

@@ -1,0 +1,634 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0071)http://www.hibernate.org/hib_docs/v3/reference/en/html/performance.html -->
+<HTML><HEAD><TITLE>Chapter 19. Improving performance</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=utf-8"><LINK 
+href="documentation2_arquivos/html.css" type=text/css rel=stylesheet>
+<META content="MSHTML 6.00.2900.2963" name=GENERATOR><LINK 
+title="HIBERNATE - Relational Persistence for Idiomatic Java" href="index.html" 
+rel=home><LINK title="HIBERNATE - Relational Persistence for Idiomatic Java" 
+href="index.html" rel=up><LINK title="Chapter&nbsp;18.&nbsp;XML Mapping" 
+href="xml.html" rel=previous><LINK title="Chapter&nbsp;20.&nbsp;Toolset Guide" 
+href="toolsetguide.html" rel=next></HEAD>
+<BODY text=black vLink=#840084 aLink=#0000ff link=#0000ff bgColor=white>
+<H2>19.2.&nbsp;The Second Level Cache</H2>
+<P>A Hibernate <TT class=literal>Session</TT> is a transaction-level cache of 
+persistent data. It is possible to configure a cluster or JVM-level (<TT 
+class=literal>SessionFactory</TT>-level) cache on a class-by-class and 
+collection-by-collection basis. You may even plug in a clustered cache. Be 
+careful. Caches are never aware of changes made to the persistent store by 
+another application (though they may be configured to regularly expire cached 
+data). </P>
+<P>You have the option to tell Hibernate which caching implementation to use by 
+specifying the name of a class that implements <TT 
+class=literal>org.hibernate.cache.CacheProvider</TT> using the property <TT 
+class=literal>hibernate.cache.provider_class</TT>. Hibernate comes bundled with 
+a number of built-in integrations with open-source cache providers (listed 
+below); additionally, you could implement your own and plug it in as outlined 
+above. Note that versions prior to 3.2 defaulted to use EhCache as the default 
+cache provider; that is no longer the case as of 3.2. </P>
+<DIV class=table><A name=cacheproviders></A>
+<P class=title><B>Table&nbsp;19.1.&nbsp;Cache Providers</B></P>
+<TABLE summary="Cache Providers" border=1>
+  <COLGROUP>
+  <COL align=left>
+  <COL align=left>
+  <COL align=left>
+  <COL align=left>
+  <COL align=left></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH align=left>Cache</TH>
+    <TH align=left>Provider class</TH>
+    <TH align=left>Type</TH>
+    <TH align=left>Cluster Safe</TH>
+    <TH align=left>Query Cache Supported</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TD align=left>Hashtable (not intended for production use)</TD>
+    <TD align=left><TT 
+      class=literal>org.hibernate.cache.HashtableCacheProvider</TT></TD>
+    <TD align=left>memory</TD>
+    <TD align=left>&nbsp;</TD>
+    <TD align=left>yes</TD></TR>
+  <TR>
+    <TD align=left>EHCache</TD>
+    <TD align=left><TT 
+    class=literal>org.hibernate.cache.EhCacheProvider</TT></TD>
+    <TD align=left>memory, disk</TD>
+    <TD align=left>&nbsp;</TD>
+    <TD align=left>yes</TD></TR>
+  <TR>
+    <TD align=left>OSCache</TD>
+    <TD align=left><TT 
+    class=literal>org.hibernate.cache.OSCacheProvider</TT></TD>
+    <TD align=left>memory, disk</TD>
+    <TD align=left>&nbsp;</TD>
+    <TD align=left>yes</TD></TR>
+  <TR>
+    <TD align=left>SwarmCache</TD>
+    <TD align=left><TT 
+      class=literal>org.hibernate.cache.SwarmCacheProvider</TT></TD>
+    <TD align=left>clustered (ip multicast)</TD>
+    <TD align=left>yes (clustered invalidation)</TD>
+    <TD align=left>&nbsp;</TD></TR>
+  <TR>
+    <TD align=left>JBoss TreeCache</TD>
+    <TD align=left><TT 
+    class=literal>org.hibernate.cache.TreeCacheProvider</TT></TD>
+    <TD align=left>clustered (ip multicast), transactional</TD>
+    <TD align=left>yes (replication)</TD>
+    <TD align=left>yes (clock sync req.)</TD></TR></TBODY></TABLE></DIV>
+<DIV class=sect2 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H3 class=title><A name=performance-cache-mapping></A>19.2.1.&nbsp;Cache 
+mappings</H3></DIV></DIV>
+<DIV></DIV></DIV>
+<P>The <TT class=literal>&lt;cache&gt;</TT> element of a class or collection 
+mapping has the following form: </P>
+<DIV class=programlistingco><PRE class=programlisting>&lt;cache 
+    usage="transactional|read-write|nonstrict-read-write|read-only"  <SPAN class=co>(1)</SPAN>
+    region="RegionName"                                              <SPAN class=co>(2)</SPAN>
+    include="all|non-lazy"                                           <SPAN class=co>(3)</SPAN>
+/&gt;</PRE>
+<DIV class=calloutlist>
+<TABLE summary="Callout list" border=0>
+  <TBODY>
+  <TR>
+    <TD vAlign=top align=left width="5%">(1)</TD>
+    <TD vAlign=top align=left>
+      <P><TT class=literal>usage</TT> (required) specifies the caching strategy: 
+      <TT class=literal>transactional</TT>, <TT class=literal>read-write</TT>, 
+      <TT class=literal>nonstrict-read-write</TT> or <TT 
+      class=literal>read-only</TT> </P></TD></TR>
+  <TR>
+    <TD vAlign=top align=left width="5%">(2)</TD>
+    <TD vAlign=top align=left>
+      <P><TT class=literal>region</TT> (optional, defaults to the class or 
+      collection role name) specifies the name of the second level cache region 
+      </P></TD></TR>
+  <TR>
+    <TD vAlign=top align=left width="5%">(3)</TD>
+    <TD vAlign=top align=left>
+      <P><TT class=literal>include</TT> (optional, defaults to <TT 
+      class=literal>all</TT>) <TT class=literal>non-lazy</TT> specifies that 
+      properties of the entity mapped with <TT class=literal>lazy="true"</TT> 
+      may not be cached when attribute-level lazy fetching is enabled 
+  </P></TD></TR></TBODY></TABLE></DIV></DIV>
+<P>Alternatively (preferrably?), you may specify <TT 
+class=literal>&lt;class-cache&gt;</TT> and <TT 
+class=literal>&lt;collection-cache&gt;</TT> elements in <TT 
+class=literal>hibernate.cfg.xml</TT>. </P>
+<P>The <TT class=literal>usage</TT> attribute specifies a <SPAN 
+class=emphasis><EM>cache concurrency strategy</EM></SPAN>. </P></DIV>
+<DIV class=sect2 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H3 class=title><A name=performance-cache-readonly></A>19.2.2.&nbsp;Strategy: 
+read only</H3></DIV></DIV>
+<DIV></DIV></DIV>
+<P>If your application needs to read but never modify instances of a persistent 
+class, a <TT class=literal>read-only</TT> cache may be used. This is the 
+simplest and best performing strategy. It's even perfectly safe for use in a 
+cluster. </P><PRE class=programlisting>&lt;class name="eg.Immutable" mutable="false"&gt;
+    &lt;cache usage="read-only"/&gt;
+    ....
+&lt;/class&gt;</PRE></DIV>
+<DIV class=sect2 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H3 class=title><A name=performance-cache-readwrite></A>19.2.3.&nbsp;Strategy: 
+read/write</H3></DIV></DIV>
+<DIV></DIV></DIV>
+<P>If the application needs to update data, a <TT class=literal>read-write</TT> 
+cache might be appropriate. This cache strategy should never be used if 
+serializable transaction isolation level is required. If the cache is used in a 
+JTA environment, you must specify the property <TT 
+class=literal>hibernate.transaction.manager_lookup_class</TT>, naming a strategy 
+for obtaining the JTA <TT class=literal>TransactionManager</TT>. In other 
+environments, you should ensure that the transaction is completed when <TT 
+class=literal>Session.close()</TT> or <TT 
+class=literal>Session.disconnect()</TT> is called. If you wish to use this 
+strategy in a cluster, you should ensure that the underlying cache 
+implementation supports locking. The built-in cache providers do <SPAN 
+class=emphasis><EM>not</EM></SPAN>. </P><PRE class=programlisting>&lt;class name="eg.Cat" .... &gt;
+    &lt;cache usage="read-write"/&gt;
+    ....
+    &lt;set name="kittens" ... &gt;
+        &lt;cache usage="read-write"/&gt;
+        ....
+    &lt;/set&gt;
+&lt;/class&gt;</PRE></DIV>
+<DIV class=sect2 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H3 class=title><A name=performance-cache-nonstrict></A>19.2.4.&nbsp;Strategy: 
+nonstrict read/write</H3></DIV></DIV>
+<DIV></DIV></DIV>
+<P>If the application only occasionally needs to update data (ie. if it is 
+extremely unlikely that two transactions would try to update the same item 
+simultaneously) and strict transaction isolation is not required, a <TT 
+class=literal>nonstrict-read-write</TT> cache might be appropriate. If the cache 
+is used in a JTA environment, you must specify <TT 
+class=literal>hibernate.transaction.manager_lookup_class</TT>. In other 
+environments, you should ensure that the transaction is completed when <TT 
+class=literal>Session.close()</TT> or <TT 
+class=literal>Session.disconnect()</TT> is called. </P></DIV>
+<DIV class=sect2 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H3 class=title><A 
+name=performance-cache-transactional></A>19.2.5.&nbsp;Strategy: 
+transactional</H3></DIV></DIV>
+<DIV></DIV></DIV>
+<P>The <TT class=literal>transactional</TT> cache strategy provides support for 
+fully transactional cache providers such as JBoss TreeCache. Such a cache may 
+only be used in a JTA environment and you must specify <TT 
+class=literal>hibernate.transaction.manager_lookup_class</TT>. </P></DIV>
+<P>None of the cache providers support all of the cache concurrency strategies. 
+The following table shows which providers are compatible with which concurrency 
+strategies. </P>
+<DIV class=table><A name=d0e14436></A>
+<P class=title><B>Table&nbsp;19.2.&nbsp;Cache Concurrency Strategy 
+Support</B></P>
+<TABLE summary="Cache Concurrency Strategy Support" border=1>
+  <COLGROUP>
+  <COL align=left>
+  <COL align=left>
+  <COL align=left>
+  <COL align=left>
+  <COL align=left></COLGROUP>
+  <THEAD>
+  <TR>
+    <TH align=left>Cache</TH>
+    <TH align=left>read-only</TH>
+    <TH align=left>nonstrict-read-write</TH>
+    <TH align=left>read-write</TH>
+    <TH align=left>transactional</TH></TR></THEAD>
+  <TBODY>
+  <TR>
+    <TD align=left>Hashtable (not intended for production use)</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>&nbsp;</TD></TR>
+  <TR>
+    <TD align=left>EHCache</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>&nbsp;</TD></TR>
+  <TR>
+    <TD align=left>OSCache</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>&nbsp;</TD></TR>
+  <TR>
+    <TD align=left>SwarmCache</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>&nbsp;</TD>
+    <TD align=left>&nbsp;</TD></TR>
+  <TR>
+    <TD align=left>JBoss TreeCache</TD>
+    <TD align=left>yes</TD>
+    <TD align=left>&nbsp;</TD>
+    <TD align=left>&nbsp;</TD>
+    <TD align=left>yes</TD></TR></TBODY></TABLE></DIV></DIV>
+<DIV class=sect1 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H2 class=title style="CLEAR: both"><A 
+name=performance-sessioncache></A>19.3.&nbsp;Managing the 
+caches</H2></DIV></DIV>
+<DIV></DIV></DIV>
+<P>Whenever you pass an object to <TT class=literal>save()</TT>, <TT 
+class=literal>update()</TT> or <TT class=literal>saveOrUpdate()</TT> and 
+whenever you retrieve an object using <TT class=literal>load()</TT>, <TT 
+class=literal>get()</TT>, <TT class=literal>list()</TT>, <TT 
+class=literal>iterate()</TT> or <TT class=literal>scroll()</TT>, that object is 
+added to the internal cache of the <TT class=literal>Session</TT>. </P>
+<P>When <TT class=literal>flush()</TT> is subsequently called, the state of that 
+object will be synchronized with the database. If you do not want this 
+synchronization to occur or if you are processing a huge number of objects and 
+need to manage memory efficiently, the <TT class=literal>evict()</TT> method may 
+be used to remove the object and its collections from the first-level cache. 
+</P><PRE class=programlisting>ScrollableResult cats = sess.createQuery("from Cat as cat").scroll(); //a huge result set
+while ( cats.next() ) {
+    Cat cat = (Cat) cats.get(0);
+    doSomethingWithACat(cat);
+    sess.evict(cat);
+}</PRE>
+<P>The <TT class=literal>Session</TT> also provides a <TT 
+class=literal>contains()</TT> method to determine if an instance belongs to the 
+session cache. </P>
+<P>To completely evict all objects from the session cache, call <TT 
+class=literal>Session.clear()</TT> </P>
+<P>For the second-level cache, there are methods defined on <TT 
+class=literal>SessionFactory</TT> for evicting the cached state of an instance, 
+entire class, collection instance or entire collection role. </P><PRE class=programlisting>sessionFactory.evict(Cat.class, catId); //evict a particular Cat
+sessionFactory.evict(Cat.class);  //evict all Cats
+sessionFactory.evictCollection("Cat.kittens", catId); //evict a particular collection of kittens
+sessionFactory.evictCollection("Cat.kittens"); //evict all kitten collections</PRE>
+<P>The <TT class=literal>CacheMode</TT> controls how a particular session 
+interacts with the second-level cache. </P>
+<DIV class=itemizedlist>
+<UL type=disc>
+  <LI>
+  <P><TT class=literal>CacheMode.NORMAL</TT> - read items from and write items 
+  to the second-level cache </P>
+  <LI>
+  <P><TT class=literal>CacheMode.GET</TT> - read items from the second-level 
+  cache, but don't write to the second-level cache except when updating data 
+</P>
+  <LI>
+  <P><TT class=literal>CacheMode.PUT</TT> - write items to the second-level 
+  cache, but don't read from the second-level cache </P>
+  <LI>
+  <P><TT class=literal>CacheMode.REFRESH</TT> - write items to the second-level 
+  cache, but don't read from the second-level cache, bypass the effect of <TT 
+  class=literal>hibernate.cache.use_minimal_puts</TT>, forcing a refresh of the 
+  second-level cache for all items read from the database </P></LI></UL></DIV>
+<P>To browse the contents of a second-level or query cache region, use the <TT 
+class=literal>Statistics</TT> API: </P><PRE class=programlisting>Map cacheEntries = sessionFactory.getStatistics()
+        .getSecondLevelCacheStatistics(regionName)
+        .getEntries();</PRE>
+<P>You'll need to enable statistics, and, optionally, force Hibernate to keep 
+the cache entries in a more human-understandable format: </P><PRE class=programlisting>hibernate.generate_statistics true
+hibernate.cache.use_structured_entries true</PRE></DIV>
+<DIV class=sect1 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H2 class=title style="CLEAR: both"><A 
+name=performance-querycache></A>19.4.&nbsp;The Query Cache</H2></DIV></DIV>
+<DIV></DIV></DIV>
+<P>Query result sets may also be cached. This is only useful for queries that 
+are run frequently with the same parameters. To use the query cache you must 
+first enable it: </P><PRE class=programlisting>hibernate.cache.use_query_cache true</PRE>
+<P>This setting causes the creation of two new cache regions - one holding 
+cached query result sets (<TT 
+class=literal>org.hibernate.cache.StandardQueryCache</TT>), the other holding 
+timestamps of the most recent updates to queryable tables (<TT 
+class=literal>org.hibernate.cache.UpdateTimestampsCache</TT>). Note that the 
+query cache does not cache the state of the actual entities in the result set; 
+it caches only identifier values and results of value type. So the query cache 
+should always be used in conjunction with the second-level cache. </P>
+<P>Most queries do not benefit from caching, so by default queries are not 
+cached. To enable caching, call <TT class=literal>Query.setCacheable(true)</TT>. 
+This call allows the query to look for existing cache results or add its results 
+to the cache when it is executed. </P>
+<P>If you require fine-grained control over query cache expiration policies, you 
+may specify a named cache region for a particular query by calling <TT 
+class=literal>Query.setCacheRegion()</TT>. </P><PRE class=programlisting>List blogs = sess.createQuery("from Blog blog where blog.blogger = :blogger")
+    .setEntity("blogger", blogger)
+    .setMaxResults(15)
+    .setCacheable(true)
+    .setCacheRegion("frontpages")
+    .list();</PRE>
+<P>If the query should force a refresh of its query cache region, you should 
+call <TT class=literal>Query.setCacheMode(CacheMode.REFRESH)</TT>. This is 
+particularly useful in cases where underlying data may have been updated via a 
+separate process (i.e., not modified through Hibernate) and allows the 
+application to selectively refresh particular query result sets. This is a more 
+efficient alternative to eviction of a query cache region via <TT 
+class=literal>SessionFactory.evictQueries()</TT>. </P></DIV>
+<DIV class=sect1 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H2 class=title style="CLEAR: both"><A 
+name=performance-collections></A>19.5.&nbsp;Understanding Collection 
+performance</H2></DIV></DIV>
+<DIV></DIV></DIV>
+<P>We've already spent quite some time talking about collections. In this 
+section we will highlight a couple more issues about how collections behave at 
+runtime. </P>
+<DIV class=sect2 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H3 class=title><A 
+name=performance-collections-taxonomy></A>19.5.1.&nbsp;Taxonomy</H3></DIV></DIV>
+<DIV></DIV></DIV>
+<P>Hibernate defines three basic kinds of collections:</P>
+<DIV class=itemizedlist>
+<UL type=disc>
+  <LI>
+  <P>collections of values</P>
+  <LI>
+  <P>one to many associations</P>
+  <LI>
+  <P>many to many associations</P></LI></UL></DIV>
+<P>This classification distinguishes the various table and foreign key 
+relationships but does not tell us quite everything we need to know about the 
+relational model. To fully understand the relational structure and performance 
+characteristics, we must also consider the structure of the primary key that is 
+used by Hibernate to update or delete collection rows. This suggests the 
+following classification: </P>
+<DIV class=itemizedlist>
+<UL type=disc>
+  <LI>
+  <P>indexed collections</P>
+  <LI>
+  <P>sets</P>
+  <LI>
+  <P>bags</P></LI></UL></DIV>
+<P>All indexed collections (maps, lists, arrays) have a primary key consisting 
+of the <TT class=literal>&lt;key&gt;</TT> and <TT 
+class=literal>&lt;index&gt;</TT> columns. In this case collection updates are 
+usually extremely efficient - the primary key may be efficiently indexed and a 
+particular row may be efficiently located when Hibernate tries to update or 
+delete it. </P>
+<P>Sets have a primary key consisting of <TT class=literal>&lt;key&gt;</TT> and 
+element columns. This may be less efficient for some types of collection 
+element, particularly composite elements or large text or binary fields; the 
+database may not be able to index a complex primary key as efficently. On the 
+other hand, for one to many or many to many associations, particularly in the 
+case of synthetic identifiers, it is likely to be just as efficient. (Side-note: 
+if you want <TT class=literal>SchemaExport</TT> to actually create the primary 
+key of a <TT class=literal>&lt;set&gt;</TT> for you, you must declare all 
+columns as <TT class=literal>not-null="true"</TT>.) </P>
+<P><TT class=literal>&lt;idbag&gt;</TT> mappings define a surrogate key, so they 
+are always very efficient to update. In fact, they are the best case. </P>
+<P>Bags are the worst case. Since a bag permits duplicate element values and has 
+no index column, no primary key may be defined. Hibernate has no way of 
+distinguishing between duplicate rows. Hibernate resolves this problem by 
+completely removing (in a single <TT class=literal>DELETE</TT>) and recreating 
+the collection whenever it changes. This might be very inefficient. </P>
+<P>Note that for a one-to-many association, the "primary key" may not be the 
+physical primary key of the database table - but even in this case, the above 
+classification is still useful. (It still reflects how Hibernate "locates" 
+individual rows of the collection.) </P></DIV>
+<DIV class=sect2 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H3 class=title><A 
+name=performance-collections-mostefficientupdate></A>19.5.2.&nbsp;Lists, maps, 
+idbags and sets are the most efficient collections to update</H3></DIV></DIV>
+<DIV></DIV></DIV>
+<P>From the discussion above, it should be clear that indexed collections and 
+(usually) sets allow the most efficient operation in terms of adding, removing 
+and updating elements. </P>
+<P>There is, arguably, one more advantage that indexed collections have over 
+sets for many to many associations or collections of values. Because of the 
+structure of a <TT class=literal>Set</TT>, Hibernate doesn't ever <TT 
+class=literal>UPDATE</TT> a row when an element is "changed". Changes to a <TT 
+class=literal>Set</TT> always work via <TT class=literal>INSERT</TT> and <TT 
+class=literal>DELETE</TT> (of individual rows). Once again, this consideration 
+does not apply to one to many associations. </P>
+<P>After observing that arrays cannot be lazy, we would conclude that lists, 
+maps and idbags are the most performant (non-inverse) collection types, with 
+sets not far behind. Sets are expected to be the most common kind of collection 
+in Hibernate applications. This is because the "set" semantics are most natural 
+in the relational model. </P>
+<P>However, in well-designed Hibernate domain models, we usually see that most 
+collections are in fact one-to-many associations with <TT 
+class=literal>inverse="true"</TT>. For these associations, the update is handled 
+by the many-to-one end of the association, and so considerations of collection 
+update performance simply do not apply. </P></DIV>
+<DIV class=sect2 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H3 class=title><A 
+name=performance-collections-mostefficentinverse></A>19.5.3.&nbsp;Bags and lists 
+are the most efficient inverse collections</H3></DIV></DIV>
+<DIV></DIV></DIV>
+<P>Just before you ditch bags forever, there is a particular case in which bags 
+(and also lists) are much more performant than sets. For a collection with <TT 
+class=literal>inverse="true"</TT> (the standard bidirectional one-to-many 
+relationship idiom, for example) we can add elements to a bag or list without 
+needing to initialize (fetch) the bag elements! This is because <TT 
+class=literal>Collection.add()</TT> or <TT 
+class=literal>Collection.addAll()</TT> must always return true for a bag or <TT 
+class=literal>List</TT> (unlike a <TT class=literal>Set</TT>). This can make the 
+following common code much faster. </P><PRE class=programlisting>Parent p = (Parent) sess.load(Parent.class, id);
+Child c = new Child();
+c.setParent(p);
+p.getChildren().add(c);  //no need to fetch the collection!
+sess.flush();</PRE></DIV>
+<DIV class=sect2 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H3 class=title><A 
+name=performance-collections-oneshotdelete></A>19.5.4.&nbsp;One shot 
+delete</H3></DIV></DIV>
+<DIV></DIV></DIV>
+<P>Occasionally, deleting collection elements one by one can be extremely 
+inefficient. Hibernate isn't completely stupid, so it knows not to do that in 
+the case of an newly-empty collection (if you called <TT 
+class=literal>list.clear()</TT>, for example). In this case, Hibernate will 
+issue a single <TT class=literal>DELETE</TT> and we are done! </P>
+<P>Suppose we add a single element to a collection of size twenty and then 
+remove two elements. Hibernate will issue one <TT class=literal>INSERT</TT> 
+statement and two <TT class=literal>DELETE</TT> statements (unless the 
+collection is a bag). This is certainly desirable. </P>
+<P>However, suppose that we remove eighteen elements, leaving two and then add 
+thee new elements. There are two possible ways to proceed </P>
+<DIV class=itemizedlist>
+<UL type=disc>
+  <LI>
+  <P>delete eighteen rows one by one and then insert three rows</P>
+  <LI>
+  <P>remove the whole collection (in one SQL <TT class=literal>DELETE</TT>) and 
+  insert all five current elements (one by one)</P></LI></UL></DIV>
+<P>Hibernate isn't smart enough to know that the second option is probably 
+quicker in this case. (And it would probably be undesirable for Hibernate to be 
+that smart; such behaviour might confuse database triggers, etc.) </P>
+<P>Fortunately, you can force this behaviour (ie. the second strategy) at any 
+time by discarding (ie. dereferencing) the original collection and returning a 
+newly instantiated collection with all the current elements. This can be very 
+useful and powerful from time to time. </P>
+<P>Of course, one-shot-delete does not apply to collections mapped <TT 
+class=literal>inverse="true"</TT>. </P></DIV></DIV>
+<DIV class=sect1 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H2 class=title style="CLEAR: both"><A 
+name=performance-monitoring></A>19.6.&nbsp;Monitoring 
+performance</H2></DIV></DIV>
+<DIV></DIV></DIV>
+<P>Optimization is not much use without monitoring and access to performance 
+numbers. Hibernate provides a full range of figures about its internal 
+operations. Statistics in Hibernate are available per <TT 
+class=literal>SessionFactory</TT>. </P>
+<DIV class=sect2 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H3 class=title><A name=performance-monitoring-sf></A>19.6.1.&nbsp;Monitoring a 
+SessionFactory</H3></DIV></DIV>
+<DIV></DIV></DIV>
+<P>You can access <TT class=literal>SessionFactory</TT> metrics in two ways. 
+Your first option is to call <TT 
+class=literal>sessionFactory.getStatistics()</TT> and read or display the <TT 
+class=literal>Statistics</TT> yourself. </P>
+<P>Hibernate can also use JMX to publish metrics if you enable the <TT 
+class=literal>StatisticsService</TT> MBean. You may enable a single MBean for 
+all your <TT class=literal>SessionFactory</TT> or one per factory. See the 
+following code for minimalistic configuration examples: </P><PRE class=programlisting>// MBean service registration for a specific SessionFactory
+Hashtable tb = new Hashtable();
+tb.put("type", "statistics");
+tb.put("sessionFactory", "myFinancialApp");
+ObjectName on = new ObjectName("hibernate", tb); // MBean object name
+
+StatisticsService stats = new StatisticsService(); // MBean implementation
+stats.setSessionFactory(sessionFactory); // Bind the stats to a SessionFactory
+server.registerMBean(stats, on); // Register the Mbean on the server</PRE><PRE class=programlisting>// MBean service registration for all SessionFactory's
+Hashtable tb = new Hashtable();
+tb.put("type", "statistics");
+tb.put("sessionFactory", "all");
+ObjectName on = new ObjectName("hibernate", tb); // MBean object name
+
+StatisticsService stats = new StatisticsService(); // MBean implementation
+server.registerMBean(stats, on); // Register the MBean on the server</PRE>
+<P>TODO: This doesn't make sense: In the first case, we retrieve and use the 
+MBean directly. In the second one, we must give the JNDI name in which the 
+session factory is held before using it. Use <TT 
+class=literal>hibernateStatsBean.setSessionFactoryJNDIName("my/JNDI/Name")</TT> 
+</P>
+<P>You can (de)activate the monitoring for a <TT 
+class=literal>SessionFactory</TT> </P>
+<DIV class=itemizedlist>
+<UL type=disc>
+  <LI>
+  <P>at configuration time, set <TT 
+  class=literal>hibernate.generate_statistics</TT> to <TT 
+  class=literal>false</TT> </P></LI></UL></DIV>
+<DIV class=itemizedlist>
+<UL type=disc>
+  <LI>
+  <P>at runtime: <TT 
+  class=literal>sf.getStatistics().setStatisticsEnabled(true)</TT> or <TT 
+  class=literal>hibernateStatsBean.setStatisticsEnabled(true)</TT> 
+</P></LI></UL></DIV>
+<P>Statistics can be reset programatically using the <TT 
+class=literal>clear()</TT> method. A summary can be sent to a logger (info 
+level) using the <TT class=literal>logSummary()</TT> method. </P></DIV>
+<DIV class=sect2 lang=en>
+<DIV class=titlepage>
+<DIV>
+<DIV>
+<H3 class=title><A 
+name=performance-monitoring-metrics></A>19.6.2.&nbsp;Metrics</H3></DIV></DIV>
+<DIV></DIV></DIV>
+<P>Hibernate provides a number of metrics, from very basic to the specialized 
+information only relevant in certain scenarios. All available counters are 
+described in the <TT class=literal>Statistics</TT> interface API, in three 
+categories: </P>
+<DIV class=itemizedlist>
+<UL type=disc>
+  <LI>
+  <P>Metrics related to the general <TT class=literal>Session</TT> usage, such 
+  as number of open sessions, retrieved JDBC connections, etc. </P>
+  <LI>
+  <P>Metrics related to he entities, collections, queries, and caches as a whole 
+  (aka global metrics), </P>
+  <LI>
+  <P>Detailed metrics related to a particular entity, collection, query or cache 
+  region. </P></LI></UL></DIV>
+<P>For exampl,e you can check the cache hit, miss, and put ratio of entities, 
+collections and queries, and the average time a query needs. Beware that the 
+number of milliseconds is subject to approximation in Java. Hibernate is tied to 
+the JVM precision, on some platforms this might even only be accurate to 10 
+seconds. </P>
+<P>Simple getters are used to access the global metrics (i.e. not tied to a 
+particular entity, collection, cache region, etc.). You can access the metrics 
+of a particular entity, collection or cache region through its name, and through 
+its HQL or SQL representation for queries. Please refer to the <TT 
+class=literal>Statistics</TT>, <TT class=literal>EntityStatistics</TT>, <TT 
+class=literal>CollectionStatistics</TT>, <TT 
+class=literal>SecondLevelCacheStatistics</TT>, and <TT 
+class=literal>QueryStatistics</TT> API Javadoc for more information. The 
+following code shows a simple example: </P><PRE class=programlisting>Statistics stats = HibernateUtil.sessionFactory.getStatistics();
+
+double queryCacheHitCount  = stats.getQueryCacheHitCount();
+double queryCacheMissCount = stats.getQueryCacheMissCount();
+double queryCacheHitRatio =
+  queryCacheHitCount / (queryCacheHitCount + queryCacheMissCount);
+
+log.info("Query Hit ratio:" + queryCacheHitRatio);
+
+EntityStatistics entityStats =
+  stats.getEntityStatistics( Cat.class.getName() );
+long changes =
+        entityStats.getInsertCount()
+        + entityStats.getUpdateCount()
+        + entityStats.getDeleteCount();
+log.info(Cat.class.getName() + " changed " + changes + "times"  );</PRE>
+<P>To work on all entities, collections, queries and region caches, you can 
+retrieve the list of names of entities, collections, queries and region caches 
+with the following methods: <TT class=literal>getQueries()</TT>, <TT 
+class=literal>getEntityNames()</TT>, <TT 
+class=literal>getCollectionRoleNames()</TT>, and <TT 
+class=literal>getSecondLevelCacheRegionNames()</TT>. </P></DIV></DIV></DIV>
+<DIV class=navfooter>
+<HR>
+
+<TABLE width="100%" summary="Navigation footer">
+  <TBODY>
+  <TR>
+    <TD align=left width="40%"><A accessKey=p 
+      href="http://www.hibernate.org/hib_docs/v3/reference/en/html/xml.html">Prev</A>&nbsp;</TD>
+    <TD align=middle width="20%"><A accessKey=u 
+      href="http://www.hibernate.org/hib_docs/v3/reference/en/html/index.html">Up</A></TD>
+    <TD align=right width="40%">&nbsp;<A accessKey=n 
+      href="http://www.hibernate.org/hib_docs/v3/reference/en/html/toolsetguide.html">Next</A></TD></TR>
+  <TR>
+    <TD vAlign=top align=left width="40%">Chapter&nbsp;18.&nbsp;XML 
+    Mapping&nbsp;</TD>
+    <TD align=middle width="20%"><A accessKey=h 
+      href="http://www.hibernate.org/hib_docs/v3/reference/en/html/index.html">Home</A></TD>
+    <TD vAlign=top align=right width="40%">&nbsp;Chapter&nbsp;20.&nbsp;Toolset 
+      Guide</TD></TR></TBODY></TABLE></DIV></BODY></HTML>

@@ -1,0 +1,99 @@
+O que mudou:
+
+1. Acrescentei cascade="all-delete-orphan" em:
+
+     <set name="lances" 
+          inverse="true"          
+          cascade="all-delete-orphan"
+          order-by="id">
+		
+       	<!-- Sem o inverse="true" serão executados os seguintes 
+             comandos quando um produto for removido:
+
+             update LANCE set PRODUTO_ID=null where PRODUTO_ID=?
+             delete from LANCE where ID=?
+             delete from PRODUTO where ID=?
+       	-->
+          
+		<key column="PRODUTO_ID"/>
+       	<one-to-many class="exercicio16.lance.Lance"/>
+
+    </set>
+
+2. No programa principal removi o teste que impede que um produto  seja 
+   removido se ele tiver lances.
+
+
+Relacionamento Pai-Filho:
+========================
+
+O mapeamento definido até o momento entre Lance e  Produto é  bastante 
+fraco. Este  mapeamento poderia ser  utilizado em  um sistema real  se 
+ambas as entidades tivessem seu próprio ciclo de vida e fossem criadas 
+e  removidas  por  processos  do  negócio  não  relacionados.  Algumas 
+associações  são  mais  fortes, isto é,  seus  ciclos de vida não  são 
+verdadeiramente independentes. 
+
+No exemplo  apresentado  parece  razoável que a  deleção de um  produto 
+provoque a deleção de todos os lances do produto. Uma instância do tipo
+Lance em particular referencia apenas uma instância de Produto por toda
+a sua vida. 
+
+Se a opção cascading delete for habilitada, a associação entre  Produto 
+e Lance terá o nome de relacionamento pai/filho.  Em um  relacionamento 
+pai/filho a entidade pai é responsável pelo ciclo de vida das entidades 
+filho  associadas.  Esta é a  semântica da  composição, mas  neste caso 
+apenas  entidades estão  envolvidas;  Lance não é do  tipo valor (value 
+type). A vantagem de se utilizar um  relacionamento  pai/filho é que  o 
+filho pode ser  carregado  individualmente ou referenciado  diretamente 
+por  outra  entidade.  Um  lance,  por exemplo,  pode ser  carregado  e 
+manipulado sem  que o produto que o possui  necessite ser carregado, ou 
+pode  ser  armazenado  sem  que  o  produto que o  possui  precise  ser 
+armazenado  (ao  mesmo  tempo).    Além  destes  aspectos,   uma  mesma 
+instância  de  Lance  será  referenciada por uma segunda propriedade de 
+Produto denominada lanceVencedor.   Objetos do tipo valor não podem ser 
+compartilhados. Para remodelar a associação entre Produto e Lance como 
+uma associação pai/filho, a única modificação necessária é no atributo 
+cascade, conforme vem acima.
+
+
+A opção all-delete-orphan deve ser utilizada para indicar que:
+
+• Qualquer   nova  instância   da  classe   Lance  será  persistida  se 
+  referenciada  por  um  Produto  persistente,  da  mesma  forma   como 
+  aconteceu  com  cascade=”save-update”.   Qualquer  Lance  persistente 
+  deveria  ser  deletado  se  referenciado  por  um  Produto  que fosse 
+  deletado.
+
+• Qualquer  instância  da  classe  Lance  deve  ser deletada se ela for 
+  removida da coleção de lances de um Produto persistente. O Hibernate, 
+  assumindo  que  o  lance  só  é  referenciado  por  este produto, irá 
+  considerá-lo órfão.
+
+
+É possível mapear associações com os seguintes atributos:
+========================================================
+
+• cascade=”none”,   o default,   diz   ao  Hibernate  para   ignorar  a 
+  associação.
+
+• cascade=”save-update”  diz  ao  Hibernate  para  navegar  a associação 
+  quando a transação for comitada e quando um objeto for passado para os
+  métodos save() ou update(). As novas instâncias transientes são salvas
+  e as modificações nas instâncias destacadas são persistidas.
+
+• cascade=”delete” diz ao Hibernate para navegar a associação e  deletar 
+  instâncias persistentes  quando um objeto for  passado  para o  método 
+  delete().
+
+• cascade=”all” engloba as duas definições acima:  cascade=”save-update” 
+  e cascade=”delete”, assim como chamadas para evict e lock. 
+
+• cascade=”all-delete-orphan” significa o mesmo que  cascade=”all” mas o 
+  Hibernate remove qualquer instância de entidade  persistente que tenha
+  sido removida de uma associação (por exemplo,  uma instância que deixa
+  de ser referenciada).
+
+• cascade=”delete-orphan”  diz  ao   Hibernate  para  deletar   qualquer 
+  instância  de  entidade  persistente  que  tenha  sido removida de uma 
+  associação.

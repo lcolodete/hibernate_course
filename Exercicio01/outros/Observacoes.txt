@@ -1,0 +1,10 @@
+Método load para acesso a objeto.
+================================
+
+Mudar show_sql: 
+
+    <property name="show_sql">true</property>
+
+Mudar log4j.rootLogger=ERROR, A1 para:
+
+	log4j.rootLogger=DEBUG, A1			

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio39.cartao.Cartao" table="CARTAO">
+			
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_CARTAO</param>
+         	</generator>
+      	</id>
+		
+      	<property name="dataEmissao" 
+                  column="DATA_EMISSAO"
+                  type="date"
+                  not-null="true"/>
+
+<!-- 
+      	<one-to-one name="ccc" 
+                    class="exercicio39.clienteContaCartao.ClienteContaCartao"/>
+
+          O ideal é que associações um-para-um não sejam bi-direcionais.
+          Uma  ocorrência  de  ClienteContaCartao  faz  referência a  um 
+          Cartao  mas o  Cartao não  deveria  fazer  referência  para  a 
+          ocorrência de ClienteContaCartao como ocorre acima. Veja o que
+          acontece quando  mandamos listar todos os Cartões.  Sempre que
+          uma ocorrência de Cartao é recuperada é emitido um select para
+          recuperar a ocorrência de ClienteContaCartao associada.
+-->      
+
+ 	</class>	
+</hibernate-mapping>

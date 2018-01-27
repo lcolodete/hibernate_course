@@ -1,0 +1,28 @@
+A  principal  característica  é o  uso de ArrayList como a classe que 
+implementa a lista de telefones.
+
+Indexed Collections
+===================
+
+Neste caso a tabela USUARIO_TELEFONE tem o seguinte lay-out: 
+
+CREATE TABLE USUARIO_TELEFONE
+(ID               NUMBER(5),
+ NUM_ORDEM        NUMBER(3),
+ TELEFONE         VARCHAR2(10),
+CONSTRAINT USUARIO_TELEFONE_PK
+PRIMARY KEY(ID, NUM_ORDEM)
+);
+
+Os números de ordem são atualizados automaticamente na inclusão e  na     
+exclusão. O número de ordem serve para definir a ordenação da lista. 
+
+Esta coleção é do tipo List e a classe concreta é um ArrayList. 
+
+Elementos  duplicados  podem  ser  cadastrados  e  também  é possível 
+cadastrar mais de um telefone null, embora isso não faça sentido.
+
+Ao se remover um telefone,  se ele estiver cadastrado mais de uma vez 
+para  um  determinado usuário,  o primeiro  telefone encontrado  será 
+removido.
+

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class name="exercicio35.Cliente" table="CLIENTE">
+			
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_CLIENTE</param>
+         	</generator>
+      	</id>
+		
+      	<property name="nome" 
+                  column="NOME"
+                  type="string"
+                  not-null="true"/>
+      
+      	<property name="salario"/>
+      
+      	<list name="telefones" table="CLIENTE_TELEFONE">
+         	<key        column="ID"/>
+         	<list-index column="NUM_ORDEM" base="0" />
+         	<element    column="TELEFONE"  type="string"/>
+      	</list>                
+
+   	</class>	
+</hibernate-mapping>

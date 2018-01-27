@@ -1,0 +1,79 @@
+Escopo da Identidade de um Objeto
+=================================
+
+O Hibernate  garante que  no contexto de  uma única sessão,  existe 
+apenas uma instância na memória que representa uma linha particular
+de uma tabela no banco de dados. A isto se dá o nome de "identidade 
+com escopo de transação". 
+
+Neste  exercício  foram  implementados  dois  testes  no   programa 
+principal: 
+
+1. No primeiro  pode-se constatar  que o primeiro nível de cache  é 
+   a sessão. Se recuperarmos  uma determinada linha  de uma  tabela 
+   duas  vezes (cada  recuperação em uma  transação  diferente)  os 
+   dois manipuladores  apontarão para o mesmo objeto.  Isto  mostra 
+   que o cache é feito a nível de sessão e não de transação.  
+
+2. No segundo pode-se constatar que se recuperarmos uma determinada 
+   linha  de uma tabela  duas vezes em sessões  diferentes os  dois 
+   manipuladores dos objetos  apontarão para objetos diferentes  em 
+   memória. 
+
+Observações:
+===========
+
+1. Caso seja  informado um  número de  cliente que não existe, dois 
+   comandos SELECT serão executados.  
+
+2. Caso seja  informado  um número de cliente  existente apenas  um 
+   comando SELECT será executado. 
+
+      ****************************************************
+      ****************************************************
+      ****************************************************
+
+Um desenvolvedor de  aplicação  identifica um  objeto utilizando  a 
+identidade  de objeto  Java (a==b).  Logo,  se um  objeto  muda  de 
+estado, pode-se  garantir que  a idetidade  do objeto será a  mesma 
+no  novo  estado? Em uma  aplicação em  camadas isto  pode não  ser 
+verdade.
+
+Para   explorar   este   assunto,   é   importante   compreender  o 
+relacionamento   entre   identidade   Java, a==b, e   identidade de 
+banco  de   dados,  a.getId().equals(b.getId()).   Às vezes   estas 
+duas identidades são equivalente e às vezes não. 
+ 
+As  condições  sob  as  quais  a  identidade  Java  é equivalente à 
+identidade  de  banco  de  dados  são  conhecidas  como  escopo  de 
+identidade de objeto.
+
+Para este escopo existem 3 opções comuns:
+
+• Uma  camada de  persistência  primitiva sem escopo  de identidade 
+  não garante  que se uma  linha for  acessada duas vezes, a  mesma 
+  instância do  objeto Java será  retornada para a aplicação.  Isto 
+  é um problema se a aplicação modifica duas instâncias  diferentes 
+  que  representam  a mesma  linha em  uma  única  transação.  Como 
+  decidir qual estado deve ser propagado para o banco de dados?
+
+• Uma  camada de  persistência utilizando  identidade com escopo de 
+  transação  garante  que,  no  contexto  de  uma  única transação, 
+  existe  apenas uma instância na memória que representa uma  linha 
+  particular  no banco de  dados. Isto evita o problema anterior  e 
+  permite que algum cache seja feito a nível de transação.
+
+• A  identidade  com  escopo  de  processo  vai  ainda mais longe e 
+  garante  que  há apenas uma instância na memória  representando a 
+  linha em todo o processo (JVM).
+
+Para uma  típica aplicação para a web ou corporativa, a  identidade 
+com  escopo de  transação  é  a  mais  indicada.  A identidade  com 
+escopo de  processo  oferece  algumas  vantagens  em  potencial  em 
+termos de  utilização de  cache; no  entanto, em uma aplicação  que 
+crie  muitas   threads,  o  custo  de  sempre  sincronizar   acesso 
+compartilhado  a  objetos  persistentes  no  mapa  de   identidades 
+global  é  muito  alto.  É  mais  simples, e mais  escalável, fazer 
+com que cada  thread tenha seu conjunto de instâncias  persistentes 
+em cada escopo de transação.
+

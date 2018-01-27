@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio23.Cliente" table="CLIENTE">
+
+      	<id name="numero" column="NUMERO"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_CLIENTE</param>
+         	</generator>
+      	</id>
+		
+      	<property name="nome" 
+                  column="NOME"
+                  type="string"
+                  not-null="true"/>
+      
+      	<property name="salario"/>
+      
+				<component name="enderecoResidencial"
+                   class="exercicio23.Endereco">
+                 
+          	<property name="rua"
+                      type="string"
+                      column="RUA_RES"/>
+              
+          	<property name="numero"
+                      type="string"
+                      column="NUMERO_RES"/>
+
+          	<property name="complemento"
+                      type="string"
+                      column="COMPLEMENTO_RES"/>
+      
+      	</component>
+                
+				<component name="enderecoComercial"
+                   class="exercicio23.Endereco">
+                 
+          	<property name="rua"
+                      type="string"
+                      column="RUA_COM"/>
+              
+          	<property name="numero"
+                      type="string"
+                      column="NUMERO_COM"/>
+
+          	<property name="complemento"
+                      type="string"
+                      column="COMPLEMENTO_COM"/>
+      
+      	</component>
+
+   	</class>	
+</hibernate-mapping>

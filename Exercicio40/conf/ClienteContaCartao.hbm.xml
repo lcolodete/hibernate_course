@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio40.clienteContaCartao.ClienteContaCartao" 
+           table="CLIENTE_CONTA_CARTAO">
+
+      	<id name="id">
+         	<column name="ID_CARTAO" sql-type="number(5)"/>
+         	<generator class="foreign">
+            	<param name="property">cartao</param>
+         	</generator>
+      	</id>
+
+<!--
+        A  ferramenta  SchemaExport  permite  a  inclusão do  nome de 
+        constraints  de  integridade  referencial,  mas não permite a 
+        definição de nomes para constraints de primary key.
+
+        CREATE TABLE CLIENTE_CONTA_CARTAO
+        (ID_CARTAO        NUMBER(5)
+==>         CONSTRAINT CLIENTE_CONTA_CARTAO_PK
+            PRIMARY KEY
+            CONSTRAINT CLIENTE_CONTA_CARTAO_CARTAO_FK
+            REFERENCES CARTAO(ID),
+         ID_CLIENTE       NUMBER(5)
+            CONSTRAINT CLIENTE_CONTA_CARTAO_CLIENT_FK
+            REFERENCES CLIENTE(ID),
+         ID_CONTA         NUMBER(5)
+            CONSTRAINT CLIENTE_CONTA_CARTAO_CONTA_FK
+            REFERENCES CONTA(ID));
+
+        Observe que um gerador especial de chave primária (foreign) é 
+        utilizado em associações um-para-um.
+-->
+
+      	<one-to-one name="cartao" 
+                    class="exercicio40.cartao.Cartao" 
+                    constrained="true" 
+                    foreign-key="CLIENTE_CONTA_CARTAO_CARTAO_FK"/>
+      
+		<many-to-one name="cliente" 
+		             class="exercicio40.cliente.Cliente"
+		             foreign-key="CLIENTE_CONTA_CARTAO_CLIENT_FK">
+		             
+         	<column name="ID_CLIENTE"
+                    sql-type="number(5)" 
+                    index="CLIENTE_CONTA_CARTAO_CLIEN_IDX" />
+
+      	</many-to-one>
+
+      	<many-to-one name="conta" 
+      	             class="exercicio40.conta.Conta"
+      	             foreign-key="CLIENTE_CONTA_CARTAO_CONTA_FK">
+      	             
+         	<column name="ID_CONTA"
+                    sql-type="number(5)" 
+                    index="CLIENTE_CONTA_CARTAO_CONTA_IDX"/>
+
+      	</many-to-one>
+
+   	</class>	
+</hibernate-mapping>

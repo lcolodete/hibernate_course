@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio20.lance.Lance" table="LANCE">
+			
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_LANCE</param>
+         	</generator>
+      	</id>
+		
+      	<property name="valor" 
+                  column="VALOR"
+                  type="double"
+                  not-null="true"
+                  access="field"/>
+      
+      	<property name="dataCriacao"
+                  column="DATA_CRIACAO"
+                  type="date"
+                  not-null="true"
+                  access="field"/>
+
+      	<many-to-one name="produto"
+                     class="exercicio20.produto.Produto"
+                     column="PRODUTO_ID"
+                     not-null="true"/>
+
+<!--  Para tornar a associação bidirecional, isto é, dado um lance qual 
+      produto foi adquirido.
+		
+      	<one-to-one name="produtoAdquirido" 
+                    class="exercicio20.produto.Produto" 
+                    property-ref="lanceVencedor"/>
+
+                  
+      	property-ref: (opcional)   especifica  o  nome  de  uma   propriedade 
+                      (lanceVencedor) da classe associada (Produto) que sofre 
+                      junção com  a chave  primária desta  classe (Lance). Se 
+                      não  especificado, é  utilizada  a  chave  primária  da 
+                      classe associada.
+-->
+                  
+   	</class>	
+</hibernate-mapping>
+

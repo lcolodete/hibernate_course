@@ -1,0 +1,67 @@
+COLEÇÕES PERSISTENTES
+=====================
+
+Hibernate requer que campos de coleções do tipo valor sejam declarados 
+através de uma interface.
+
+Intâncias  de  coleções possuem o comportamento usual dos tipos valor. 
+São automaticamente  persistidas  quando  referenciadas por  um objeto 
+persistente  e  automaticamente   deletadas  quando   deixam  de   ser 
+referenciadas. Se uma  coleção é passada de um objeto persistente para
+outro, seus elementos podem ser movidos de uma tabela para outra.
+
+
+Coleções de elementos
+=====================
+
+Coleções  podem  conter  praticamente   qualquer  tipo   Hibernate  e, 
+naturalmente, podem referenciar outras entidades. Esta é uma distinção 
+importante: uma  coleção de  objetos pode ser  tratada com a semântica
+do "valor" (seu  ciclo de vida  depende completamente do ciclo de vida 
+do objeto proprietário da coleção)  ou pode ser  uma  referência  para 
+outra  entidade,  com seu próprio  ciclo de vida.  Neste caso apenas o 
+"link"  entre os dois  objetos é considerado ser o  estado  armazenado 
+pela coleção.
+
+Os  elementos   de  uma   coleção  são   mapeados  por   <element>  ou 
+<composite-element>,  ou  no  caso  de  referências  a  entidades, com 
+<one-to-many>  ou  <many-to-many>.   Os  dois  primeiros  elementos de 
+mapeamento  possuem  a  semântica  do  "valor",  e  os outros dois são 
+utilizados para mapear associações.
+
+
+ATENÇÃO 1
+=========
+
+A execução  do  método  cliente.adicionarTelefone(telefone)  provoca a 
+execução do método telefones.add(telefone) o que faz com que ocorra um
+acesso  ao  banco  de  dados  para se saber  se o  telefone  que  será  
+cadastrado já está na relação de telefones cadastrados. 
+
+Observe  que  este  select  acontece  embora  não  estejamos  em   uma 
+transação.   A  sessão está aberta, mas a transação não. Mesmo assim a 
+relação de telefones é  recuperada  do banco de dados. A transação foi
+necessária para salvar o objeto cliente.  Sem a transação que  aparece
+abaixo  o novo  telefone  cadastrado  não seria persistido no banco de 
+dados.
+ 
+if (cliente.adicionarTelefone(telefone))
+{	
+    HibernateUtil.beginTransaction();
+    usuarioDAO.altera(usuario);
+    HibernateUtil.commitTransaction();
+	
+    System.out.println('\n' + "Alteracao efetuada com sucesso!");
+}
+
+
+ATENÇÃO 2
+=========
+
+O manual do Hibernate dá a entender que quando uma transação é fechada
+a  conexão  JDBC  é  retornada para o pool de conexões, mas isto não é 
+verdade: basta ler a "ATENÇÃO 1" acima para ver que uma busca ao banco
+de dados pode acontecer fora de uma transação.
+
+
+

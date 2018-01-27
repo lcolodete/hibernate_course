@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio22.produto.Produto" table="PRODUTO">
+			
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_PRODUTO</param>
+         	</generator>
+      	</id>
+		
+      	<property name="nome" 
+                  column="NOME"
+                  type="string"
+                  not-null="true"/>
+      
+      	<property name="descricao" 
+                  column="DESCRICAO"
+                  type="string"
+                  not-null="true"/>
+                
+      	<property name="lanceMinimo" 
+                  column="LANCE_MINIMO"
+                  type="double"
+                  not-null="true"/>
+                
+      	<property name="dataCadastro" 
+                  column="DATA_CADASTRO"
+                  type="date"
+                  not-null="true"/>
+
+      	<property name="dataVenda" 
+                  column="DATA_VENDA"
+                  type="date"/>
+
+      	<set name="lances" 
+             order-by="ID asc">
+
+<!--         cascade="save-update" e inverse="true" não são  necessários 
+             em função da forma como um  Lance é inserido,  isto é,  sem
+             ser adicionado ao conjunto de lances de um produto. 
+           
+             inverse="true"  também  não é  necessário  uma  vez que  um 
+             produto não pode ser removido se tiver lances. 
+-->
+      	
+      	  	<key column="PRODUTO_ID"/>
+          	<one-to-many class="exercicio22.lance.Lance"/>
+      
+      	</set>
+
+      	<many-to-one name="lanceVencedor" 
+                     class="exercicio22.lance.Lance" 
+                     column="LANCE_VENCEDOR_ID" 
+                     unique="true"/>
+
+      	<set name="produtoCategorias" 
+             cascade="delete" 
+             order-by="ID_PRODUTO"
+             inverse="true">
+
+<!--       
+             cascade="delete" diz ao Hibernate para navegar a associação 
+             e  deletar  instâncias  persistentes  quando  um objeto for 
+             passado para o método delete(). 
+           
+             cascade="save-update" não é  necessário em  função da forma 
+             como  uma  ocorrência  de   ProdutoCategoria   é  inserida,
+             isto é, sem  adicioná-la ao  conjunto de  produtoCategorias
+             de um produto.
+           
+             inverse="true" é  necessário pois  sem ele o  Hibernate irá 
+             executar o  comando  abaixo (com o  objetivo de destruir as 
+             ligações existentes entre o produto que será apagado e suas
+             ocorrências  de  produtoCategorias),  antes  de  remover um 
+             produto:
+           
+             update PRODUTO_CATEGORIA 
+             set ID_PRODUTO=null 
+             where ID_PRODUTO=?
+           
+             E este  comando  dará erro uma vez que ID_PRODUTO faz parte 
+             da chave primária da tabela PRODUTO_CATEGORIA.
+-->
+           
+         	<key column="ID_PRODUTO" />
+         	<one-to-many class="exercicio22.prodcat.ProdutoCategoria" />
+
+      	</set>
+
+   	</class>	
+</hibernate-mapping>

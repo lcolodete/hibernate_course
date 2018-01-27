@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio14.lance.Lance" table="LANCE">
+			
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_LANCE</param>
+         	</generator>
+      	</id>
+		
+      	<property name="valor" 
+                  type="double"
+                  column="VALOR"
+                  not-null="true"/>
+      
+      	<property name="dataCriacao"
+                  type="date"
+                  column="DATA_CRIACAO"
+                  not-null="true"/>
+
+      	<many-to-one name="produto"
+                     class="exercicio14.produto.Produto"
+                     column="PRODUTO_ID"/>      
+      
+	</class>	
+</hibernate-mapping>

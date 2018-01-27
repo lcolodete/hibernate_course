@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio09.Cliente" 
+   	       table="CLIENTE">
+
+		<cache usage="read-write"/>
+
+<!--
+  Possibilidades de cache:
+  ========================
+  
+	read-only  
+	
+		- Quando a aplicação  necessita ler dados, mas nunca  modifica
+		  instâncias de uma classe persistente.
+
+		<cache usage="read-only"/>
+
+	read-write 
+	
+		- Quando a aplicação atualiza os dados armazenados na área de 
+		  cache. Esta estratégia efetua o lock dos dados  armazenados
+		  no cache.
+
+		<cache usage="read-write"/>
+
+	nonstrict-read-write 
+	
+		- Esta   estratégia   efetua   o  cache   de   dados  que  são 
+		  esporadicamente  atualizados, mas nunca  efetua  o lock  dos
+		  dados armazenados na área de cache. Se for possível o acesso 
+		  concorrente a um item,  esta  estratégia  não garante que  o 
+		  item retornado do cache contém a última versão disponível no
+		  banco. Para esta estratégia é preciso configurar os timeouts
+		  com muito cuidado.
+                       
+          Esta  política  é a  mais  rápida.  Ela não utiliza  métodos  
+          synchronized.  As  duas  outras  estratégias  (read-write  e 
+          transactional) utilizam.
+
+		<cache usage="nonstrict-read-write"/>
+
+    transactional
+
+        - Esta estratégia de cache transacional provê suporte completo 
+          para um  cache  transacional  utilizado por  um servidor  de 
+          aplicações. Este tipo de cache deve ser utilizado apenas  em 
+          um ambiente JTA e é preciso especificar no Hibernate.cfg.xml
+          o nome da classe do Hibernate responsável pela gerencia  das
+          transações.  
+
+		<cache usage="transactional"/>
+-->
+
+      	<id name="numero" column="NUMERO"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_CLIENTE</param>
+         	</generator>
+      	</id>
+		
+      	<property name="nome" 
+                  column="NOME"
+                  type="string"
+                  not-null="true"/>
+      
+      	<property name="salario"/>
+      
+   	</class>	
+</hibernate-mapping>

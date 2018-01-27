@@ -1,0 +1,11 @@
+3 TABELAS SÃO NECESSÁRIAS:
+
+- PAGAMENTO
+- CONTA
+- CARTAO
+
+As duas tabelas referentes às subclasses possuem chaves primárias que 
+são  também  chaves  estrangeiras  para  a  tabela  que  representa a 
+superclasse (PAGAMENTO), logo, no modelo relacional a associação é do
+tipo um-para-um.
+

@@ -1,0 +1,11 @@
+O código utilizado nos exercícios 24, 25 e 26 é rigorosamente o mesmo.
+
+Exercício 24 (Tabela por hierarquia de classe)
+============
+
+Tabela a ser criada: 
+- Pagamento
+
+É utilizado o elemento <subclass> em Pagamento.hbm.xml.
+
+

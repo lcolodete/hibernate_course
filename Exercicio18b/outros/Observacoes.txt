@@ -1,0 +1,49 @@
+Acrescentei validação do valor e da data de criação do lance.
+
+Para isso foi preciso modificar o modo de acesso ao valor das propriedades da classe Lance.
+
+      <property name="valor" 
+                column="VALOR"
+                type="double"
+                not-null="true"
+                access="field"/>
+      
+      <property name="dataCriacao"
+                column="DATA_CRIACAO"
+                type="date"
+                not-null="true"
+                access="field"/>
+
+E foi preciso alterar:
+
+- os métodos get e set da classe Lance para as propriedades valor e dataCriacao
+- o método construtor.
+
+***************************************************************************
+
+Métodos de acesso podem realizar validação, no entanto, mais adiante iremos utilizar os métodos de acesso para popular o estado de um objeto após ler as informações de um banco de dados. Neste caso, é razoável que a validação não aconteça. Logo, nestas situações, se deve dizer ao Hibernate para que ele acesse diretamente os valores das variáveis de instância. Para que isto ocorra é preciso acrescentar access=”field” no arquivo de metadados do Hibernate forçando-o a não utilizar os métodos set e a utilizar as variáveis de instância diretamente.
+
+Um outro assunto a considerar é o dirty checking. O Hibernate detecta automaticamente mudanças de estado e atualiza automaticamente o novo estado no banco de dados. Geralmente é seguro retornar, através de um método get, um objeto diferente daquele atribuído através de um método set. O Hibernate compara os objetos (para saber se houve uma mudança de estado, e para decidir se deve atualizar o banco de dados) por valor. 
+
+Por exemplo, o comando get abaixo não resultará em um comando UPDATE desnecessário.
+
+public String getPrimeiroNome()
+{	return new String (primeiroNome);
+}
+
+No entanto, há uma exceção muito importante: Coleções são comparadas por identidade.
+
+Para uma propriedade mapeada como uma coleção persistente, o método get deve retornar a mesma instância atribuída pelo método set, caso contrário o Hibernate irá atualizar o banco de dados, mesmo que nenhuma atualização seja necessária, toda vez que a sessão sincronizar com o banco de dados o estado armazenado na memória.
+
+Este tipo de código deve ser evitado:
+
+public void setNomes(List listaDeNomes)
+{	nomes = (String[])listaDeNomes.toArray();
+}
+
+public List getNomess()
+{	return Arrays.asList(nomes);
+}
+
+
+

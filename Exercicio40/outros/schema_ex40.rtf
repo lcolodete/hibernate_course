@@ -1,0 +1,64 @@
+
+    drop table CARTAO cascade constraints;
+
+    drop table CLIENTE cascade constraints;
+
+    drop table CLIENTE_CONTA_CARTAO cascade constraints;
+
+    drop table CONTA cascade constraints;
+
+    drop sequence SEQ_CARTAO;
+
+    drop sequence SEQ_CLIENTE;
+
+    drop sequence SEQ_CONTA;
+
+    create table CARTAO (
+        ID number(5) not null,
+        DATA_EMISSAO date not null,
+        primary key (ID)
+    );
+
+    create table CLIENTE (
+        ID number(5) not null,
+        NOME varchar2(20) not null,
+        primary key (ID)
+    );
+
+    create table CLIENTE_CONTA_CARTAO (
+        ID_CARTAO number(5) not null,
+        ID_CLIENTE number(5),
+        ID_CONTA number(5),
+        primary key (ID_CARTAO)
+    );
+
+    create table CONTA (
+        ID number(5) not null,
+        DATA_ABERTURA date not null,
+        primary key (ID)
+    );
+
+    create index CLIENTE_CONTA_CARTAO_CLIEN_IDX on CLIENTE_CONTA_CARTAO (ID_CLIENTE);
+
+    create index CLIENTE_CONTA_CARTAO_CONTA_IDX on CLIENTE_CONTA_CARTAO (ID_CONTA);
+
+    alter table CLIENTE_CONTA_CARTAO 
+        add constraint CLIENTE_CONTA_CARTAO_CARTAO_FK 
+        foreign key (ID_CARTAO) 
+        references CARTAO;
+
+    alter table CLIENTE_CONTA_CARTAO 
+        add constraint CLIENTE_CONTA_CARTAO_CONTA_FK 
+        foreign key (ID_CONTA) 
+        references CONTA;
+
+    alter table CLIENTE_CONTA_CARTAO 
+        add constraint CLIENTE_CONTA_CARTAO_CLIENT_FK 
+        foreign key (ID_CLIENTE) 
+        references CLIENTE;
+
+    create sequence SEQ_CARTAO;
+
+    create sequence SEQ_CLIENTE;
+
+    create sequence SEQ_CONTA;

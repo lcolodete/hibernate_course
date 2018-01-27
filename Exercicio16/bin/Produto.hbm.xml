@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio16.produto.Produto" table="PRODUTO">
+			
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_PRODUTO</param>
+         	</generator>
+      	</id>
+		
+      	<property name="nome" 
+                  column="NOME"
+                  type="string"
+                  not-null="true"/>
+      
+      	<property name="descricao" 
+                  column="DESCRICAO"
+                  type="string"
+                  not-null="true"/>
+                
+      	<property name="lanceMinimo" 
+                  column="LANCE_MINIMO"
+                  type="double"
+                  not-null="true"/>
+                
+      	<property name="dataCadastro" 
+                  column="DATA_CADASTRO"
+                  type="date"
+                  not-null="true"/>
+
+      	<property name="dataVenda" 
+                  column="DATA_VENDA"
+                  type="date"/>
+
+        <set name="lances" 
+             inverse="true"
+             cascade="delete"
+             order-by="id">
+
+          <!-- Sem o inverse="true" serão executados os seguintes 
+               comandos quando um produto for removido:
+
+               update LANCE set PRODUTO_ID=null where PRODUTO_ID=?
+               delete from LANCE where ID=?
+               delete from PRODUTO where ID=?
+          -->
+          
+			<key column="PRODUTO_ID"/>
+          	<one-to-many class="exercicio16.lance.Lance"/>
+
+      	</set>
+
+<!--
+
+A opção all-delete-orphan deve ser utilizada para indicar que:
+
+- Qualquer  nova  instância  da  classe  Lance  será  persistida se 
+  referenciada  por um  Produto  persistente, da  mesma forma  como 
+  aconteceu com cascade="save-update", e qualquer Lance persistente 
+  deverá ser  deletado  se  referenciado  por  um  Produto que seja 
+  removido.
+
+- Qualquer instância da  classe Lance deve ser  deletada se ela for 
+  removida  da coleção  de  lances  de um  Produto  persistente.  O 
+  Hibernate,  assumindo  que  o lance  só é  referenciado por  este 
+  produto, irá considerá-lo órfão.
+
+
+É possível mapear associações com os seguintes atributos:
+========================================================
+
+- cascade="none",  o  default, diz  ao  Hibernate  para  ignorar  a 
+  associação.
+
+- cascade="save-update" diz ao Hibernate para navegar a  associação 
+  quando a  transação for  comitada e quando um objeto for  passado 
+  para   os  métodos  save() ou   update(). APENAS AS NOVAS instâncias 
+  transientes  são   salvas  e  as   modificações  nas instâncias 
+  destacadas são persistidas.
+
+- cascade="delete" diz  ao  Hibernate para  navegar a  associação e 
+  deletar instâncias persistentes quando um objeto for passado para
+  o método delete().
+
+- cascade="all"     engloba     as    duas     definições    acima: 
+  cascade="save-update" e cascade="delete". 
+
+- cascade="all-delete-orphan"  significa o mesmo que  cascade="all" 
+  mas o Hibernate remove qualquer instância de entidade persistente
+  que  tenha  sido  removida de  uma  associação (por exemplo,  uma 
+  instância que deixa de ser referenciada).
+
+- cascade="delete-orphan"  diz  ao  Hibernate para deletar qualquer 
+  instância de entidade persistente que tenha sido  removida de uma 
+  associação.
+
+-->
+
+   	</class>	
+</hibernate-mapping>

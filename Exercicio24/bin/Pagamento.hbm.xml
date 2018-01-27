@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+   	<class name="exercicio24.Pagamento" table="PAGAMENTO">
+
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_PAGAMENTO</param>
+         	</generator>
+      	</id>
+
+				<discriminator column="TIPO_PGTO" type="string"/>
+
+      	<property name="data" 
+                  column="DATA_PGTO"
+                  type="date"
+                  not-null="true"/>
+
+      	<property name="valor" 
+                  column="VALOR"
+                  type="double"
+                  not-null="true"/>
+
+				<subclass name="exercicio24.Conta" discriminator-value="CTA">
+
+         	<property name="banco" 
+                      column="BANCO"
+                      type="string"/>
+
+         	<property name="agencia" 
+                      column="AGENCIA"
+                      type="string"/>
+
+         	<property name="conta" 
+                      column="CONTA"
+                      type="string"/>
+
+      	</subclass>
+
+				<subclass name="exercicio24.Cartao" discriminator-value="CAR">
+
+         	<property name="numero" 
+                      column="NUMERO"
+                      type="string"/>
+
+         	<property name="mesExp" 
+                      column="MES_EXP"
+                      type="string"/>
+
+         	<property name="anoExp" 
+                      column="ANO_EXP"
+                      type="string"/>
+
+      	</subclass>
+
+   	</class>
+
+</hibernate-mapping>

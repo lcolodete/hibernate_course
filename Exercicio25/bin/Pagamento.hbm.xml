@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+   	<class name="exercicio25.Pagamento" abstract="true">
+
+      	<!--   	
+   	      	abstract  (opcional):  Utilizado  para  marcar  superclasses 
+   	      	abstratas em hierarquias do tipo <union-subclass>.
+   	
+   	      	Se sua superclasse é abstrata, mapeie-a com abstract="true". 
+   	      	Se  a superclasse  não for  abstrata,  uma tabela  adicional 
+   	      	(cujo  nome  default  será   PAGAMENTO,  neste  caso)   será 
+   	      	necessária para armazenar as instâncias da superclasse. 
+   	      
+   	      	Uma abordagem alternativa, que veremos no próximo exercício,
+   	      	utiliza  o  polimorfismo  implícito:  a  desvantagem   desta 
+   	      	próxima  abordagem  é  que  ela  não  gera SQL UNIONs quando 
+   	      	buscas polimórficas são executadas.
+   	  	-->
+
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_PAGAMENTO</param>
+         	</generator>
+      	</id>
+
+      	<property name="data" 
+                  column="DATA_PGTO"
+                  type="date"
+                  not-null="true"/>
+
+      	<property name="valor" 
+                  column="VALOR"
+                  type="double"
+                  not-null="true"/>
+
+					<union-subclass name="exercicio25.Cartao" table="CARTAO">
+
+         	<property name="numero" 
+                      column="NUMERO"
+                      type="string"
+                      not-null="true"/>
+
+         	<property name="mesExp" 
+                      column="MES_EXP"
+                      type="string"
+                      not-null="true"/>
+
+         	<property name="anoExp" 
+                      column="ANO_EXP"
+                      type="string"
+                      not-null="true"/>
+
+      	</union-subclass>
+  
+				<union-subclass name="exercicio25.Conta" table="CONTA">
+			
+         	<property name="banco" 
+                      column="BANCO"
+                      type="string"
+                      not-null="true"/>
+  
+         	<property name="agencia" 
+                      column="AGENCIA"
+                      type="string"
+                      not-null="true"/>
+
+         	<property name="conta" 
+                      column="CONTA"
+                      type="string"
+                      not-null="true"/>
+                
+      	</union-subclass>	
+
+   	</class>
+
+</hibernate-mapping>

@@ -1,0 +1,16 @@
+SchemaExport Command Line Options
+
+          Option                             Description
+          ------                             -----------
+--quiet                               don't output the script to stdout
+--drop                                only drop the tables
+--create                              only create the tables
+--text                                don't export to the database
+--output=my_schema.ddl                output the ddl script to a file
+--naming=eg.MyNamingStrategy          select a NamingStrategy
+--config=hibernate.cfg.xml            read Hibernate configuration from an XML file
+--properties=hibernate.properties     read database properties from a file
+--format                              format the generated SQL nicely in the script
+--delimiter=;                         set an end of line delimiter for the script
+
+

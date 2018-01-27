@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   	<class name="exercicio19b.Categoria" table="CATEGORIA">
+			
+      	<id name="id" column="ID"> 
+         	<generator class="sequence">
+            	<param name="sequence">SEQ_CATEGORIA</param>
+         	</generator>
+      	</id>
+		
+      	<property name="nome" 
+                  column="NOME"
+                  type="string"
+                  not-null="true"/>
+      
+      	<many-to-one name="categoriaPai"
+                     class="exercicio19b.Categoria" 
+                     column="ID_CATEGORIA_PAI"/>
+                
+      	<!-- Uma associação um-para-muitos recursiva e bidirecional. -->
+
+      	<set name="subCategorias" 
+             order-by="id asc">
+
+         	<key column="ID_CATEGORIA_PAI"/>
+         	<one-to-many class="exercicio19b.Categoria"/>
+
+      	</set>
+
+   	</class>	
+</hibernate-mapping>
